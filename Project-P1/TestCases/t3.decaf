@@ -10,3 +10,4 @@ void main()
    for (n = 1; n <= 15; n = n + 1)
       Print("Factorial(", n , ") = ", factorial(n), "\n");
 }
+

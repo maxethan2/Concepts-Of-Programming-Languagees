@@ -9,7 +9,8 @@ tokens = [
     'T_Int', 'T_LCB', 'T_LEFTSHIFT', 'T_LessEqual', 'T_LPAREN', 'T_LSB', 'T_LT', 
     'T_MINUS', 'T_MOD', 'T_MULT', 'T_NEQ', 'T_NOT', 'T_NULL', 'T_OR', 'T_PACKAGE', 
     'T_PLUS', 'T_RCB', 'T_RETURN', 'T_RIGHTSHIFT', 'T_RPAREN', 'T_RSB', 'T_SEMICOLON', 
-    'T_STRINGCONSTANT', 'T_STRINGTYPE', 'T_TRUE', 'T_VAR', 'T_VOID', 'T_WHILE', 'T_WHITESPACE'
+    'T_STRINGCONSTANT', 'T_STRINGTYPE', 'T_TRUE', 'T_VAR', 'T_VOID', 'T_WHILE', 'T_WHITESPACE', 
+    'T_Print'
 ]
 
 # Reserved keywords in Decaf
@@ -31,7 +32,8 @@ reserved = {
     'continue': 'T_CONTINUE',
     'extern': 'T_EXTERN',
     'package': 'T_PACKAGE',
-    'var': 'T_VAR'
+    'var': 'T_VAR',
+    'Print': 'T_Print'
 }
 
 # Regular expressions for tokens
@@ -120,16 +122,15 @@ def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
-# Main function to scan Decaf code
+# decaf scanner
 def scan_decaf_code(code):
     lexer.input(code)
     while True:
         tok = lexer.token()
-        if not tok:
+        if not tok: # end of file
             break
         col_start = find_column(code, tok)
 
-        # Determine col_end based on the token type
         if isinstance(tok.value, str):  # For string and character values
             col_end = col_start + len(tok.value) - 1
         else:  # For integer constants, just set col_end to col_start
@@ -141,19 +142,21 @@ def scan_decaf_code(code):
         elif tok.type == 'T_IntConstant':
             print(f"{tok.value}     line {tok.lineno} Cols {col_start} - {col_end}  is  {tok.type} (value= {tok.value})")
         elif len(tok.value) == 1:  # For single-character tokens
-            print(f"{tok.value}     line {tok.lineno} Cols {col_start} - {col_end}  is  '{tok.value}'")
+            if (tok.type == 'T_IDENTIFIER'):
+                print(f"{tok.value}     line {tok.lineno} Cols {col_start} - {col_end}  is  '{tok.type}'")
+            else:
+              print(f"{tok.value}     line {tok.lineno} Cols {col_start} - {col_end}  is  '{tok.value}'")
         else:
             print(f"{tok.value}     line {tok.lineno} Cols {col_start} - {col_end}  is  {tok.type}")
 
 
 
-# Read Decaf file
+# read file decaf file then send to scanner
 def read_decaf_file(file_path):
     with open(file_path, 'r') as f:
         code = f.read()
     scan_decaf_code(code)
 
-# Entry point for command line
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python decaf_scanner.py <filename.decaf>")
